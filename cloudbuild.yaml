@@ -40,7 +40,7 @@ images:
   - ${_LOCATION}/${PROJECT_ID}/${_IMAGE}
 
 substitutions:
-  _IMAGE: backend-repo/ragserver-api:latest
+  _IMAGE: ragserver-api-repo/ragserver-api:latest
   _LOCATION: asia-south1-docker.pkg.dev
 
 options:
