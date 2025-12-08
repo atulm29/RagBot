@@ -1,6 +1,9 @@
 # Base image for running
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 WORKDIR /app
+
+# Cloud Run listens on port 8080
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 EXPOSE 8080
 
 # Build image
