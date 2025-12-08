@@ -15,15 +15,15 @@ using RAGSERVERAPI.Validators;
 using Npgsql;
 
 var builder = WebApplication.CreateBuilder(args);
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+// var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 
-if (builder.Environment.IsDevelopment())
-{
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenAnyIP(int.Parse(port));
-    });
-}
+// if (builder.Environment.IsDevelopment())
+// {
+//     builder.WebHost.ConfigureKestrel(options =>
+//     {
+//         options.ListenAnyIP(int.Parse(port));
+//     });
+// }
 
 ConfigurationManager configuration = builder.Configuration;
 var jwtTokenConfig = builder.Configuration.GetSection("JwtTokenConfig").Get<JwtTokenConfig>() ?? throw new InvalidOperationException("TokenConfig section is missing in configuration.");
