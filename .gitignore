@@ -79,3 +79,10 @@ appsettings.json
 *.key
 *.secret
 *.p12
+
+bin
+obj
+**/*.csproj.user
+**/.vs
+.git
+.gitignore

@@ -1,0 +1,47 @@
+steps:
+  # 1) Build Docker image for .NET API
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        '${_LOCATION}/${PROJECT_ID}/${_IMAGE}',
+        './RAGServer.API'
+      ]
+
+  # 2) Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        '${_LOCATION}/${PROJECT_ID}/${_IMAGE}'
+      ]
+
+  # 3) Deploy to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      [
+        'run',
+        'deploy',
+        'ragserver-api',
+        '--image',
+        '${_LOCATION}/${PROJECT_ID}/${_IMAGE}',
+        '--region',
+        'asia-south1',
+        '--platform',
+        'managed',
+        '--allow-unauthenticated',
+        '--port',
+        '8080'
+      ]
+
+images:
+  - ${_LOCATION}/${PROJECT_ID}/${_IMAGE}
+
+substitutions:
+  _IMAGE: backend-repo/ragserver-api:latest
+  _LOCATION: asia-south1-docker.pkg.dev
+
+options:
+  logging: CLOUD_LOGGING_ONLY
