@@ -1,0 +1,81 @@
+# -------------- .NET --------------
+bin/
+obj/
+*.user
+*.suo
+*.pdb
+*.cache
+
+# -------------- Angular --------------
+# Angular build output
+/RAGServer.APP/dist/
+/RAGServer.APP/dist-ssr/
+/RAGServer.APP/out-tsc/
+
+# Angular cache
+/RAGServer.APP/.angular/cache/
+
+# Node modules
+/RAGServer.APP/node_modules/
+
+# Logs
+/RAGServer.APP/npm-debug.log*
+/RAGServer.APP/yarn-debug.log*
+/RAGServer.APP/pnpm-debug.log*
+
+# IDE / Editor settings
+/RAGServer.APP/.vscode/
+/RAGServer.APP/.idea/
+/RAGServer.APP/*.sublime-workspace
+/RAGServer.APP/*.sublime-project
+
+# OS generated files
+/RAGServer.APP/.DS_Store
+/RAGServer.APP/Thumbs.db
+
+# Compiled TypeScript
+/RAGServer.APP/*.js
+/RAGServer.APP/*.js.map
+
+# Build artifacts
+/RAGServer.APP/*.tgz
+
+# Cache
+/RAGServer.APP/RAGServer.APP/.sass-cache/
+/RAGServer.APP/.npm/
+/RAGServer.APP/.cache/
+
+# Temporary files
+/RAGServer.APP/tmp/
+/RAGServer.APP/temp/
+
+# Testing
+/RAGServer.APP/coverage/
+
+# Angular Universal server build
+/RAGServer.APP/server
+
+# Optional: Ignore environment variable files
+/RAGServer.APP/*.local
+
+
+
+# -------------- Logs --------------
+*.log
+logs/
+
+# -------------- Environment Files --------------
+.env
+.env.*
+
+# -------------- IDE --------------
+.vscode/
+.idea/
+.DS_Store
+
+# -------------- Secrets --------------
+service-account.json
+appsettings.json
+*.key
+*.secret
+*.p12

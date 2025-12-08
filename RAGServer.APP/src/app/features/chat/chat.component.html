@@ -1,0 +1,195 @@
+<div class="flex h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Sidebar -->
+    <div class="w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col">
+        <!-- Header -->
+        <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-4">
+                <h1 class="text-xl font-bold text-gray-900 dark:text-white">AI Chatbot</h1>
+                <button (click)="themeService.toggleTheme()"
+                    class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    @if (themeService.isDarkMode()) {
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    } @else {
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    }
+                </button>
+            </div>
+
+            <!-- Role Selector -->
+            <div class="space-y-2">
+                <select [(ngModel)]="selectedRoleId" (change)="onRoleChange()"
+                    class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white">
+                    <option value="">Select role</option>
+                    @for (role of roles(); track role.id) {
+                    <option [value]="role.id">{{ role.name }}</option>
+                    }
+                </select>
+
+                <label class="flex items-center space-x-2">
+                    <input type="checkbox" [(ngModel)]="useRag"
+                        class="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Use RAG</span>
+                </label>
+            </div>
+
+            <button (click)="createNewConversation()" [disabled]="!selectedRoleId"
+                class="mt-4 w-full bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                + New Conversation
+            </button>
+        </div>
+
+        <!-- Conversation List -->
+        <div class="flex-1 overflow-y-auto p-2">
+            @for (conv of conversations(); track conv.id) {
+            <button (click)="selectConversation(conv)" [class.bg-primary-50]="currentConversation()?.id === conv.id"
+                [class.dark:bg-primary-900]="currentConversation()?.id === conv.id"
+                class="w-full text-left p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 mb-2">
+                <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                    {{ conv.title || 'New Conversation' }}
+                </p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ conv.createdAt | date: 'short' }}
+                </p>
+            </button>
+            }
+        </div>
+
+        <!-- User Menu -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="flex-1 min-w-0">
+                    <p class="text-sm font-medium text-gray-900 dark:text-white truncate">
+                        {{ currentUser()?.username }}
+                    </p>
+                    <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                        {{ currentUser()?.email }}
+                    </p>
+                </div>
+                <button (click)="logout()"
+                    class="ml-3 p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                    title="Logout">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="flex-1 flex flex-col">
+        @if (currentConversation()) {
+        <!-- Messages -->
+        <div #messagesContainer class="flex-1 overflow-y-auto p-4 space-y-4">
+            @for (message of currentConversation()!.messages; track message.id) {
+            <div [class.justify-end]="message.role === 'user'" class="flex">
+                <div [class.bg-primary-600]="message.role === 'user'" [class.text-white]="message.role === 'user'"
+                    [class.bg-white]="message.role === 'assistant'"
+                    [class.dark:bg-gray-800]="message.role === 'assistant'"
+                    [class.text-gray-900]="message.role === 'assistant'"
+                    [class.dark:text-white]="message.role === 'assistant'"
+                    class="max-w-3xl px-4 py-3 rounded-lg shadow">
+                    <div class="whitespace-pre-wrap">{{ message.content }}</div>
+                    <div class="text-xs opacity-70 mt-2">
+                        {{ message.createdAt | date: 'short' }}
+                    </div>
+                </div>
+            </div>
+            }
+
+            @if (isStreaming()) {
+            <div class="flex">
+                <div
+                    class="max-w-3xl px-4 py-3 rounded-lg shadow bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
+                    <div class="whitespace-pre-wrap">{{ streamingMessage() }}</div>
+                    <div class="mt-2">
+                        <div class="inline-block w-2 h-2 bg-primary-600 rounded-full animate-pulse"></div>
+                        <div class="inline-block w-2 h-2 bg-primary-600 rounded-full animate-pulse ml-1"></div>
+                        <div class="inline-block w-2 h-2 bg-primary-600 rounded-full animate-pulse ml-1"></div>
+                    </div>
+                </div>
+            </div>
+            }
+        </div>
+
+        <!-- Input Area -->
+        <div class="border-t border-gray-200 dark:border-gray-700 p-4">
+            @if (errorMessage()) {
+            <div
+                class="mb-4 p-3 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-lg flex items-center justify-between">
+                <span>{{ errorMessage() }}</span>
+                <button (click)="errorMessage.set('')" class="text-red-600 dark:text-red-400 hover:text-red-800">
+                    ×
+                </button>
+            </div>
+            }
+
+            <div class="flex space-x-4">
+                <textarea [(ngModel)]="messageInput" (keydown.enter)="onEnterPress($event)"
+                    [disabled]="isLoading() || isStreaming()" placeholder="Type your message..." rows="3"
+                    class="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-800 dark:text-white resize-none"></textarea>
+                <button (click)="sendMessage()" [disabled]="!messageInput.trim() || isLoading() || isStreaming()"
+                    class="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    @if (isLoading() || isStreaming()) {
+                    <span>Sending...</span>
+                    } @else {
+                    <span>Send</span>
+                    }
+                </button>
+            </div>
+        </div>
+        } @else {
+        <div class="flex-1 flex items-center justify-center">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                    Welcome to AI Chatbot
+                </h2>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                    Select a role and create a new conversation to get started
+                </p>
+            </div>
+        </div>
+        }
+    </div>
+
+    <!-- Documents Link -->
+    <div
+        class="w-16 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 flex flex-col items-center py-4 space-y-4">
+        <button (click)="navigateToDocuments()" class="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            title="Documents">
+            <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+            </svg>
+        </button>
+        <button (click)="navigateToConfiguration()" class="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            title="Configuration">
+            <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 32 32"
+                version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                <g id="icomoon-ignore">
+                </g>
+                <path
+                    d="M17.599 3.738v2.598l0.8 0.207c0.905 0.234 1.768 0.597 2.566 1.081l0.715 0.434 1.86-1.86 2.262 2.262-1.888 1.888 0.407 0.708c0.451 0.785 0.788 1.635 1.002 2.527l0.196 0.817h2.744v3.199h-2.806l-0.216 0.782c-0.233 0.844-0.583 1.654-1.040 2.406l-0.434 0.716 2.036 2.035-2.262 2.262-2.064-2.064-0.707 0.407c-0.734 0.422-1.531 0.745-2.368 0.961l-0.8 0.206v2.951h-3.199v-2.951l-0.8-0.206c-0.837-0.216-1.634-0.539-2.368-0.961l-0.708-0.407-2.064 2.064-2.262-2.262 2.036-2.035-0.434-0.716c-0.457-0.753-0.807-1.562-1.040-2.406l-0.216-0.782h-2.806v-3.199h2.744l0.196-0.817c0.213-0.891 0.551-1.742 1.002-2.527l0.407-0.708-1.888-1.888 2.262-2.262 1.86 1.86 0.715-0.434c0.798-0.484 1.661-0.848 2.566-1.081l0.8-0.207v-2.598h3.199zM16 20.799c2.646 0 4.798-2.153 4.798-4.799s-2.152-4.799-4.798-4.799-4.798 2.153-4.798 4.799c0 2.646 2.152 4.799 4.798 4.799zM18.666 2.672h-5.331v2.839c-1.018 0.263-1.975 0.67-2.852 1.202l-2.022-2.022-3.769 3.77 2.065 2.065c-0.498 0.867-0.875 1.81-1.114 2.809h-2.97v5.331h3.060c0.263 0.953 0.655 1.85 1.156 2.676l-2.198 2.198 3.769 3.77 2.241-2.241c0.816 0.469 1.7 0.828 2.633 1.069v3.191h5.331v-3.191c0.933-0.241 1.817-0.6 2.633-1.069l2.241 2.241 3.769-3.77-2.198-2.198c0.501-0.826 0.893-1.723 1.156-2.676h3.060v-5.331h-2.97c-0.239-0.999-0.616-1.941-1.114-2.809l2.065-2.065-3.769-3.77-2.022 2.022c-0.877-0.532-1.834-0.939-2.852-1.202v-2.839h-0zM16 19.733c-2.062 0-3.732-1.671-3.732-3.733s1.67-3.732 3.732-3.732 3.732 1.671 3.732 3.732c0 2.062-1.67 3.733-3.732 3.733v0z"
+                    fill="#000000">
+
+                </path>
+            </svg>
+        </button>
+        <button (click)="navigateToSearch()" class="p-3 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700"
+            title="Search">
+            <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </button>
+    </div>
+</div>

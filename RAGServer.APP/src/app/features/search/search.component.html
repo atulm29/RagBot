@@ -1,0 +1,118 @@
+<div class="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <!-- Header -->
+    <div class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <button (click)="navigateToChat()" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                        <svg class="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Search Documents</h1>
+                </div>
+                <button (click)="themeService.toggleTheme()"
+                    class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700">
+                    @if (themeService.isDarkMode()) {
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    } @else {
+                    <svg class="w-5 h-5 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                    }
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Search Box -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 mb-8">
+            <div class="flex space-x-4">
+                <input type="text" [(ngModel)]="searchQuery" (keydown.enter)="search()"
+                    placeholder="Search for information in your documents..."
+                    class="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-gray-700 dark:text-white" />
+                <button (click)="search()" [disabled]="!searchQuery.trim() || isSearching()"
+                    class="px-6 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed">
+                    @if (isSearching()) {
+                    <span>Searching...</span>
+                    } @else {
+                    <span>Search</span>
+                    }
+                </button>
+            </div>
+
+            <div class="mt-4 flex items-center space-x-4">
+                <label class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Results:</span>
+                    <input type="number" [(ngModel)]="topK" min="1" max="20"
+                        class="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white" />
+                </label>
+                <label class="flex items-center space-x-2">
+                    <span class="text-sm text-gray-700 dark:text-gray-300">Min Similarity:</span>
+                    <input type="number" [(ngModel)]="minSimilarity" min="0" max="1" step="0.05"
+                        class="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-700 dark:text-white" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Results -->
+        @if (errorMessage()) {
+        <div class="bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 rounded-lg p-4 mb-8">
+            {{ errorMessage() }}
+        </div>
+        }
+
+        @if (results().length > 0) {
+        <div class="space-y-4">
+            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                Found {{ results().length }} result(s)
+            </h2>
+
+            @for (result of results(); track result.documentId + '-' + result.chunkIndex) {
+            <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <h3 class="text-lg font-medium text-gray-900 dark:text-white">
+                            {{ result.fileName }}
+                        </h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">
+                            Chunk #{{ result.chunkIndex + 1 }}
+                        </p>
+                    </div>
+                    <span class="px-3 py-1 rounded-full text-sm font-medium"
+                        [class.bg-green-100]="result.similarityScore >= 0.9"
+                        [class.text-green-800]="result.similarityScore >= 0.9"
+                        [class.bg-blue-100]="result.similarityScore >= 0.8 && result.similarityScore < 0.9"
+                        [class.text-blue-800]="result.similarityScore >= 0.8 && result.similarityScore < 0.9"
+                        [class.bg-yellow-100]="result.similarityScore < 0.8"
+                        [class.text-yellow-800]="result.similarityScore < 0.8">
+                        {{ (result.similarityScore * 100).toFixed(1) }}% match
+                    </span>
+                </div>
+                <p class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                    {{ result.chunkContent }}
+                </p>
+            </div>
+            }
+        </div>
+        } @else if (hasSearched()) {
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-12 text-center">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-gray-500 dark:text-gray-400">
+                No results found. Try adjusting your search query or similarity threshold.
+            </p>
+        </div>
+        }
+    </div>
+</div>
