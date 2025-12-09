@@ -36,12 +36,52 @@ steps:
         '8080'
       ]
 
+# ---------- FRONTEND (Angular APP) ----------
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'build',
+        '-t',
+        '${_LOCATION}/${PROJECT_ID}/${_IMAGE1}',
+        './RAGServer.APP'
+      ]
+
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      [
+        'push',
+        '${_LOCATION}/${PROJECT_ID}/${_IMAGE1}'
+      ]
+
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      [
+        'run',
+        'deploy',
+        'ragserver-app',
+        '--image',
+        '${_LOCATION}/${PROJECT_ID}/${_IMAGE1}',
+        '--region',
+        'asia-south1',
+        '--platform',
+        'managed',
+        '--allow-unauthenticated',
+        '--port',
+        '8080'
+      ]
+
+
+
+
 images:
   - ${_LOCATION}/${PROJECT_ID}/${_IMAGE}
+  - ${_LOCATION}/${PROJECT_ID}/${_IMAGE1}
 
 substitutions:
   _IMAGE: ragserver-api-repo/ragserver-api:latest
   _LOCATION: asia-south1-docker.pkg.dev
+  _IMAGE1: ragserver-app-repo/ragserver-app
 
 options:
   logging: CLOUD_LOGGING_ONLY
