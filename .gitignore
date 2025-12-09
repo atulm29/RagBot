@@ -74,11 +74,7 @@ logs/
 .DS_Store
 
 # -------------- Secrets --------------
-service-account.json
-appsettings.json
-*.key
-*.secret
-*.p12
+
 
 bin
 obj

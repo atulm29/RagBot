@@ -19,9 +19,8 @@ var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.ListenAnyIP(int.Parse(port));  // Cloud Run requires this
+    options.ListenAnyIP(int.Parse(port));
 });
-
 
 ConfigurationManager configuration = builder.Configuration;
 var jwtTokenConfig = builder.Configuration.GetSection("JwtTokenConfig").Get<JwtTokenConfig>() ?? throw new InvalidOperationException("TokenConfig section is missing in configuration.");
@@ -159,7 +158,7 @@ app.UseSwaggerUI();
 
 //}
 app.UseMiddleware<GlobalExceptionMiddleware>();
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
