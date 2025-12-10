@@ -207,7 +207,7 @@ app.MapGet(
                 var documentCount = await con.ExecuteScalarAsync<int>(
                     "SELECT COUNT(*) FROM documents"
                 );
-                var chunkCount = await con.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM chunks");
+                var chunkCount = await con.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM documentchunks");
                 var embeddingCount = await con.ExecuteScalarAsync<int>(
                     "SELECT COUNT(*) FROM embeddings"
                 );
