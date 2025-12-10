@@ -1,48 +1,53 @@
+# ---------------------------
+# CLOUD BUILD PIPELINE
+# Deploys:
+# 1) .NET Core API  (ragserver-api)
+# 2) Angular App    (ragserver-app)
+# ---------------------------
+
 steps:
-  # 1) Build Docker image for .NET API
+
+  # ================================
+  # 1) BUILD & PUSH .NET API IMAGE
+  # ================================
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         'build',
-        '-t',
-        '${_LOCATION}/${PROJECT_ID}/${_IMAGE}',
+        '-t', '${_LOCATION}/${PROJECT_ID}/${_API_IMAGE}',
         './RAGServer.API'
       ]
 
-  # 2) Push image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         'push',
-        '${_LOCATION}/${PROJECT_ID}/${_IMAGE}'
+        '${_LOCATION}/${PROJECT_ID}/${_API_IMAGE}'
       ]
 
-  # 3) Deploy to Cloud Run
+  # Deploy API to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       [
-        'run',
-        'deploy',
-        'ragserver-api',
-        '--image',
-        '${_LOCATION}/${PROJECT_ID}/${_IMAGE}',
-        '--region',
-        'asia-south1',
-        '--platform',
-        'managed',
+        'run','deploy','ragserver-api',
+        '--image','${_LOCATION}/${PROJECT_ID}/${_API_IMAGE}',
+        '--region','${_REGION}',
+        '--platform','managed',
         '--allow-unauthenticated',
-        '--port',
-        '8080'
+        '--port','8080',
+        '--timeout','300'
       ]
 
-# ---------- FRONTEND (Angular APP) ----------
+
+  # ================================
+  # 2) BUILD & PUSH ANGULAR APP IMAGE
+  # ================================
   - name: 'gcr.io/cloud-builders/docker'
     args:
       [
         'build',
-        '-t',
-        '${_LOCATION}/${PROJECT_ID}/${_IMAGE1}',
+        '-t', '${_LOCATION}/${PROJECT_ID}/${_APP_IMAGE}',
         './RAGServer.APP'
       ]
 
@@ -50,38 +55,41 @@ steps:
     args:
       [
         'push',
-        '${_LOCATION}/${PROJECT_ID}/${_IMAGE1}'
+        '${_LOCATION}/${PROJECT_ID}/${_APP_IMAGE}'
       ]
 
+  # Deploy Angular App to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
       [
-        'run',
-        'deploy',
-        'ragserver-app',
-        '--image',
-        '${_LOCATION}/${PROJECT_ID}/${_IMAGE1}',
-        '--region',
-        'asia-south1',
-        '--platform',
-        'managed',
+        'run','deploy','ragserver-app',
+        '--image','${_LOCATION}/${PROJECT_ID}/${_APP_IMAGE}',
+        '--region','${_REGION}',
+        '--platform','managed',
         '--allow-unauthenticated',
-        '--port',
-        '8080'
+        '--port','8080',
+        '--timeout','300'
       ]
 
 
-
-
+# ==================================================
+# Images shown in Cloud Build UI
+# ==================================================
 images:
-  - ${_LOCATION}/${PROJECT_ID}/${_IMAGE}
-  - ${_LOCATION}/${PROJECT_ID}/${_IMAGE1}
+  - ${_LOCATION}/${PROJECT_ID}/${_API_IMAGE}
+  - ${_LOCATION}/${PROJECT_ID}/${_APP_IMAGE}
 
+# ==================================================
+# SUBSTITUTIONS (CUSTOM VARIABLES)
+# ==================================================
 substitutions:
-  _IMAGE: ragserver-api-repo/ragserver-api:latest
+  _REGION: asia-south1
   _LOCATION: asia-south1-docker.pkg.dev
-  _IMAGE1: ragserver-app-repo/ragserver-app
+
+  # Artifact Registry paths
+  _API_IMAGE: ragserver-api-repo/ragserver-api:latest
+  _APP_IMAGE: ragserver-app-repo/ragserver-app:latest
 
 options:
   logging: CLOUD_LOGGING_ONLY
