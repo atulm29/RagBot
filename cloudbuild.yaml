@@ -36,7 +36,8 @@ steps:
         '--platform','managed',
         '--allow-unauthenticated',
         '--port','8080',
-        '--timeout','300'
+        '--timeout','300',
+        '--add-cloudsql-instances','rag-server-480413:asia-south1:rag-postgres'
       ]
 
 
