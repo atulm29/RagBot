@@ -134,6 +134,7 @@ builder.Services.AddHttpClient("VertexAI", client =>
 {
     client.Timeout = TimeSpan.FromMinutes(5);
 });
+builder.Services.AddLogging(logging => logging.AddConsole());
 var app = builder.Build();
 app.Use(
     async (context, next) =>
@@ -162,6 +163,7 @@ app.UseMiddleware<GlobalExceptionMiddleware>();
 app.MapControllers();
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 // Health check endpoints
 app.MapHealthChecks("/api/health");

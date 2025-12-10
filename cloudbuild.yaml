@@ -37,7 +37,8 @@ steps:
         '--allow-unauthenticated',
         '--port','8080',
         '--timeout','300',
-        '--add-cloudsql-instances','rag-server-480413:asia-south1:rag-server-db-instance'
+        '--add-cloudsql-instances','rag-server-480413:asia-south1:rag-server-db-instance',
+        '--set-env-vars', 'CONNECTION_STRING=Host=/cloudsql/rag-server-480413:asia-south1:rag-server-db-instance;Database=aichatbot;Username=postgres;Password=MyStrongPostgresPass#2025;Port=5432;SSL Mode=Disable'
       ]
 
 
