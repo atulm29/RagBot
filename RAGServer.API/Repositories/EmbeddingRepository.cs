@@ -15,10 +15,11 @@ public interface IEmbeddingRepository
 public class EmbeddingRepository : IEmbeddingRepository
 {
     private readonly DataContext _context;
-
-    public EmbeddingRepository(DataContext context)
+    private readonly RAGSERVERAPI.Services.ILogger _logger;
+    public EmbeddingRepository(DataContext context, RAGSERVERAPI.Services.ILogger logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     public async Task<Embedding> CreateAsync(Embedding embedding)
@@ -109,13 +110,13 @@ public class EmbeddingRepository : IEmbeddingRepository
 
             var filtered = allResults.Where(r => r.Similarity >= minSimilarity).ToList();
             Console.WriteLine($"After filtering (>= {minSimilarity}): {filtered.Count} results");
-
-            return filtered;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error in SearchSimilarAsync: {ex.Message}");
-            throw;
+            var cleanResults = filtered.Select(x => new SimilarityResult
+            {
+                ChunkId = x.ChunkId,
+                DocumentId = x.DocumentId,
+                Similarity = x.Similarity
+            }).ToList();
+            return cleanResults;
         }
         finally
         {

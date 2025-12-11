@@ -33,7 +33,7 @@ public class VertexAIService : IVertexAIService
         _httpClientFactory = httpClientFactory;
         _logger = logger;
         _projectId = configuration["GCP:ProjectId"]!;
-        _location = configuration["GCP:Location"] ?? "us-central1";
+        _location = configuration["GCP:_Location"] ?? "us-central1";
 
         // Rate limiting configuration
         var maxConcurrentRequests = int.Parse(configuration["GCP:RateLimits:MaxConcurrentRequests"] ?? "1");

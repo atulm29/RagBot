@@ -290,7 +290,7 @@ public class RagService : IRagService
                 request.TenantId.Value,
                 request.RoleId.Value,
                 request.TopK,
-                minSimilarity: config.SimilarityThreshold
+                minSimilarity: 0.6
             );
 
             var results = new List<SearchResult>();

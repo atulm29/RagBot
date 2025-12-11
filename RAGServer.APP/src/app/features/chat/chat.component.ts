@@ -117,10 +117,15 @@ export class ChatComponent implements OnInit {
       createdAt: new Date().toISOString()
     };
 
-    this.currentConversation.update(c => c ? {
-      ...c,
-      messages: [...c.messages, userMessage]
-    } : null);
+    this.currentConversation.update(c => {
+      if (!c || !c.messages) {
+        return null;
+      }
+      return {
+        ...c,
+        messages: [...c.messages, userMessage]
+      };
+    });
 
     this.messageInput = '';
     this.isStreaming.set(true);
@@ -143,10 +148,15 @@ export class ChatComponent implements OnInit {
           createdAt: new Date().toISOString()
         };
 
-        this.currentConversation.update(c => c ? {
-          ...c,
-          messages: [...c.messages, assistantMessage]
-        } : null);
+        this.currentConversation.update(c => {
+          if (!c || !c.messages) {
+            return null;
+          }
+          return {
+            ...c,
+            messages: [...c.messages, assistantMessage]
+          };
+        });
 
         this.isStreaming.set(false);
         this.streamingMessage.set('');
