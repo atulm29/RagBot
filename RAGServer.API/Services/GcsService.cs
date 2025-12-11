@@ -38,10 +38,8 @@ public class GcsService : IGcsService
         var objectName = $"documents/{Guid.NewGuid()}/{fileName}";
 
         using var stream = new MemoryStream(content);
-        var uploadOptions = new UploadObjectOptions
-        {
-            PredefinedAcl = isPublic ? PredefinedObjectAcl.PublicRead : PredefinedObjectAcl.Private
-        };
+        var uploadOptions = new UploadObjectOptions();
+
 
         await _storageClient.UploadObjectAsync(
             _bucketName,

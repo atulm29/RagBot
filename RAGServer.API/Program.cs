@@ -33,7 +33,7 @@ builder.Services.AddSingleton(sp =>
 {
     var config = sp.GetRequiredService<IConfiguration>();
     var keyPath = config["GCP:KeyFilePath"] ?? "./service-account.json";
-    var location = config["GCP:Location"] ?? "us-central1";
+    var location = config["GCP:Location"] ?? "asia-south1";
     var credential = GoogleCredential.FromFile(keyPath).CreateScoped("https://www.googleapis.com/auth/cloud-platform");
     var builderClient = new PredictionServiceClientBuilder
     {
